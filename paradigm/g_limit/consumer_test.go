@@ -1,4 +1,4 @@
-package paradigm
+package g_limit
 
 import (
 	"fmt"
@@ -8,28 +8,28 @@ import (
 	"testing"
 )
 
-func TestGLimitConsumer(t *testing.T) {
-	limit := NewGLimitConsumer(10)
+func TestConsumer(t *testing.T) {
+	limit := NewConsumer(10)
 	limit.Consumer()
 	limit.Producer(math.MaxInt8)
 	limit.wg.Wait()
 }
 
-type GLimitConsumer struct {
+type Consumer struct {
 	wg    *sync.WaitGroup
 	ch    chan int
 	limit int
 }
 
-func NewGLimitConsumer(limit int) *GLimitConsumer {
-	return &GLimitConsumer{
+func NewConsumer(limit int) *Consumer {
+	return &Consumer{
 		wg:    &sync.WaitGroup{},
 		ch:    make(chan int, limit),
 		limit: limit,
 	}
 }
 
-func (r *GLimitConsumer) Producer(n int) {
+func (r *Consumer) Producer(n int) {
 	for i := 0; i < n; i++ {
 		r.wg.Add(1)
 		r.ch <- i
@@ -37,7 +37,7 @@ func (r *GLimitConsumer) Producer(n int) {
 	close(r.ch)
 }
 
-func (r *GLimitConsumer) Consumer() {
+func (r *Consumer) Consumer() {
 	for i := 0; i < r.limit; i++ {
 		go func(j int) {
 			for v := range r.ch {

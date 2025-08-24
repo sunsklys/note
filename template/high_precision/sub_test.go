@@ -1,4 +1,4 @@
-package template
+package high_precision
 
 import (
 	"slices"
@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestHighPrecisionSub(t *testing.T) {
+func TestSub(t *testing.T) {
 	tests := []struct {
 		name, str1, str2, want string
 	}{
@@ -22,14 +22,14 @@ func TestHighPrecisionSub(t *testing.T) {
 
 	for _, v := range tests {
 		t.Run(v.name, func(t *testing.T) {
-			if r := highPrecisionSub(v.str1, v.str2); r != v.want {
+			if r := sub(v.str1, v.str2); r != v.want {
 				t.Fatal("结果: ", r, "期望值: ", v.want)
 			}
 		})
 	}
 }
 
-func highPrecisionSub(str1, str2 string) string {
+func sub(str1, str2 string) string {
 	s1 := reverseSub(str1)
 	s2 := reverseSub(str2)
 

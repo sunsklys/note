@@ -1,11 +1,11 @@
-package template
+package difference
 
 import (
 	"reflect"
 	"testing"
 )
 
-func TestDifferenceTwoDimensional(t *testing.T) {
+func TestTwoDimensional(t *testing.T) {
 	tests := []struct {
 		name                string
 		arr                 [][]int
@@ -29,7 +29,7 @@ func TestDifferenceTwoDimensional(t *testing.T) {
 
 	for _, v := range tests {
 		t.Run(v.name, func(t *testing.T) {
-			r := differenceTwoDimensional(v.arr, v.x1, v.y1, v.x2, v.y2, v.sum)
+			r := twoDimensional(v.arr, v.x1, v.y1, v.x2, v.y2, v.sum)
 			if !reflect.DeepEqual(r, v.want) {
 				t.Fatal("结果: ", r, "期望值: ", v.want)
 			}
@@ -37,7 +37,7 @@ func TestDifferenceTwoDimensional(t *testing.T) {
 	}
 }
 
-func differenceTwoDimensional(s [][]int, x1, y1, x2, y2, sum int) [][]int {
+func twoDimensional(s [][]int, x1, y1, x2, y2, sum int) [][]int {
 	x1 += 1
 	y1 += 1
 	x2 += 1

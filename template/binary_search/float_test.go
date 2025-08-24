@@ -1,10 +1,10 @@
-package template
+package binary_search
 
 import (
 	"testing"
 )
 
-func TestBinarySearchFloat(t *testing.T) {
+func TestFloat(t *testing.T) {
 	tests := []struct {
 		name               string
 		l, r, result, want float64
@@ -14,7 +14,7 @@ func TestBinarySearchFloat(t *testing.T) {
 
 	for _, v := range tests {
 		t.Run(v.name, func(t *testing.T) {
-			if r := binarySearchFloat(v.l, v.r, v.result); r != v.want {
+			if r := float(v.l, v.r, v.result); r != v.want {
 				t.Fatal("结果: ", r, "期望值: ", v.want)
 
 			}
@@ -22,7 +22,7 @@ func TestBinarySearchFloat(t *testing.T) {
 	}
 }
 
-func binarySearchFloat(l, r, x float64) float64 {
+func float(l, r, x float64) float64 {
 	for r-l > 1e-10 {
 		mid := (r + l) / 2
 		if x <= mid*mid*mid {

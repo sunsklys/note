@@ -1,4 +1,4 @@
-package paradigm
+package g_limit
 
 import (
 	"fmt"
@@ -8,27 +8,27 @@ import (
 	"testing"
 )
 
-func TestGLimitCh(t *testing.T) {
-	limit := NewGLimit(10)
+func TestCh(t *testing.T) {
+	limit := NewCh(10)
 	limit.Start(math.MaxInt8)
 	limit.wg.Wait()
 }
 
-type GLimitCh struct {
+type Ch struct {
 	wg    *sync.WaitGroup
 	ch    chan struct{}
 	limit int
 }
 
-func NewGLimit(limit int) *GLimitCh {
-	return &GLimitCh{
+func NewCh(limit int) *Ch {
+	return &Ch{
 		wg:    &sync.WaitGroup{},
 		ch:    make(chan struct{}, limit),
 		limit: limit,
 	}
 }
 
-func (r *GLimitCh) Start(n int) {
+func (r *Ch) Start(n int) {
 	for i := 0; i < n; i++ {
 		r.wg.Add(1)
 		r.ch <- struct{}{}
@@ -37,7 +37,7 @@ func (r *GLimitCh) Start(n int) {
 	close(r.ch)
 }
 
-func (r *GLimitCh) Deal(i int) {
+func (r *Ch) Deal(i int) {
 	defer func() {
 		<-r.ch
 		r.wg.Done()

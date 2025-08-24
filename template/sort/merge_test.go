@@ -1,11 +1,11 @@
-package template
+package sort
 
 import (
 	"reflect"
 	"testing"
 )
 
-func TestSortMerge(t *testing.T) {
+func TestMerge(t *testing.T) {
 	tests := []struct {
 		name      string
 		arr, want []int
@@ -20,7 +20,7 @@ func TestSortMerge(t *testing.T) {
 
 	for _, v := range tests {
 		t.Run(v.name, func(t *testing.T) {
-			sortMerge(v.arr, 0, len(v.arr)-1)
+			merge(v.arr, 0, len(v.arr)-1)
 			if !reflect.DeepEqual(v.arr, v.want) {
 				t.Fatal("结果: ", v.arr, "期望值: ", v.want)
 			}
@@ -28,14 +28,14 @@ func TestSortMerge(t *testing.T) {
 	}
 }
 
-func sortMerge(s []int, l int, r int) {
+func merge(s []int, l int, r int) {
 	if l >= r {
 		return
 	}
 
 	mid := (l + r) >> 1
-	sortMerge(s, l, mid)
-	sortMerge(s, mid+1, r)
+	merge(s, l, mid)
+	merge(s, mid+1, r)
 
 	left, right := l, mid+1
 	var t []int

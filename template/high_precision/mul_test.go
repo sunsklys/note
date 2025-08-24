@@ -1,4 +1,4 @@
-package template
+package high_precision
 
 import (
 	"slices"
@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestHighPrecisionMul(t *testing.T) {
+func TestMul(t *testing.T) {
 	tests := []struct {
 		name, str1 string
 		number     int
@@ -20,14 +20,14 @@ func TestHighPrecisionMul(t *testing.T) {
 
 	for _, v := range tests {
 		t.Run(v.name, func(t *testing.T) {
-			if r := highPrecisionMul(v.str1, v.number); r != v.want {
+			if r := mul(v.str1, v.number); r != v.want {
 				t.Fatal("结果: ", r, "期望值: ", v.want)
 			}
 		})
 	}
 }
 
-func highPrecisionMul(str1 string, num int) string {
+func mul(str1 string, num int) string {
 	rs1 := reverseMul(str1)
 
 	var t int

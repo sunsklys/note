@@ -1,10 +1,10 @@
-package template
+package prefix_sum
 
 import (
 	"testing"
 )
 
-func TestPrefixSumOneDimensional(t *testing.T) {
+func TestOneDimensional(t *testing.T) {
 	tests := []struct {
 		name       string
 		arr        []int
@@ -17,14 +17,14 @@ func TestPrefixSumOneDimensional(t *testing.T) {
 
 	for _, v := range tests {
 		t.Run(v.name, func(t *testing.T) {
-			if r := prefixSumOneDimensional(v.arr, v.l, v.r); r != v.want {
+			if r := oneDimensional(v.arr, v.l, v.r); r != v.want {
 				t.Fatal("结果: ", r, "期望值: ", v.want)
 			}
 		})
 	}
 }
 
-func prefixSumOneDimensional(s []int, l, r int) int {
+func oneDimensional(s []int, l, r int) int {
 	l += 1
 	r += 1
 

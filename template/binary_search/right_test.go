@@ -1,10 +1,10 @@
-package template
+package binary_search
 
 import (
 	"testing"
 )
 
-func TestBinarySearchRight(t *testing.T) {
+func TestRight(t *testing.T) {
 	tests := []struct {
 		name         string
 		arr          []int
@@ -18,14 +18,14 @@ func TestBinarySearchRight(t *testing.T) {
 
 	for _, v := range tests {
 		t.Run(v.name, func(t *testing.T) {
-			if r := binarySearchRight(v.arr, 0, len(v.arr)-1, v.search); r != v.want {
+			if r := right(v.arr, 0, len(v.arr)-1, v.search); r != v.want {
 				t.Fatal("结果: ", r, "期望值: ", v.want)
 			}
 		})
 	}
 }
 
-func binarySearchRight(s []int, l, r, x int) int {
+func right(s []int, l, r, x int) int {
 	for l < r {
 		mid := (l + r) + 1>>1
 		if x >= s[mid] {

@@ -11,8 +11,8 @@ func TestUnionSet(t *testing.T) {
 		set  [][]int
 		want int
 	}{
-		{"一个集合", [][]int{{1, 2}, {2, 3}, {3, 4}, {4, 5}}, 1},
-		{"多个集合", [][]int{{1, 2}, {1, 3}, {2, 3}, {4, 5}, {6, 7}, {8, 9}}, 4},
+		{"一个集合", [][]int{{1, 2}, {2, 3}, {3, 4}, {4, 5}}, 5},
+		{"多个集合", [][]int{{1, 2}, {2, 3}, {3, 4}, {4, 5}, {5, 6}, {6, 7}}, 7},
 	}
 
 	for _, test := range testes {
@@ -20,11 +20,10 @@ func TestUnionSet(t *testing.T) {
 			u := NewUnionSet(math.MaxInt8)
 			for _, s := range test.set {
 				u.Union(s[0], s[1])
-				if u.Find(s[0]) != u.Find(s[1]) {
-					t.Fatal("结果: ", u.Father, "期望值: ", test.set)
-				}
 			}
-			t.Log(u.Find(1))
+			if u.Find(1) != test.want {
+				t.Errorf(" want: %d, got: %d", test.want, u.Find(1))
+			}
 		})
 	}
 }

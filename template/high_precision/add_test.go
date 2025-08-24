@@ -1,4 +1,4 @@
-package template
+package high_precision
 
 import (
 	"slices"
@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestHighPrecisionAdd(t *testing.T) {
+func TestAdd(t *testing.T) {
 	tests := []struct {
 		name, str1, str2, want string
 	}{
@@ -22,14 +22,14 @@ func TestHighPrecisionAdd(t *testing.T) {
 
 	for _, v := range tests {
 		t.Run(v.name, func(t *testing.T) {
-			if r := highPrecisionAdd(v.str1, v.str2); r != v.want {
+			if r := add(v.str1, v.str2); r != v.want {
 				t.Fatal("结果: ", r, "期望值: ", v.want)
 			}
 		})
 	}
 }
 
-func highPrecisionAdd(str1 string, str2 string) string {
+func add(str1 string, str2 string) string {
 	if len(str1) < len(str2) {
 		str1, str2 = str2, str1
 	}

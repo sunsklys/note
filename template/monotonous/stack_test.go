@@ -1,11 +1,11 @@
-package template
+package monotonous
 
 import (
 	"reflect"
 	"testing"
 )
 
-func TestMonotonousStack(t *testing.T) {
+func TestStack(t *testing.T) {
 	tests := []struct {
 		name string
 		arr  []int
@@ -17,14 +17,14 @@ func TestMonotonousStack(t *testing.T) {
 
 	for _, v := range tests {
 		t.Run(v.name, func(t *testing.T) {
-			if r := monotonousStack(v.arr); !reflect.DeepEqual(r, v.want) {
+			if r := stack(v.arr); !reflect.DeepEqual(r, v.want) {
 				t.Fatal("结果: ", r, "期望值: ", v.want)
 			}
 		})
 	}
 }
 
-func monotonousStack(arr []int) []int {
+func stack(arr []int) []int {
 	var res = make([]int, len(arr))
 	var stack []int
 	for i := 0; i < len(arr); i++ {

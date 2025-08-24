@@ -1,11 +1,11 @@
-package template
+package high_precision
 
 import (
 	"strconv"
 	"testing"
 )
 
-func TestHighPrecisionDiv(t *testing.T) {
+func TestDiv(t *testing.T) {
 	tests := []struct {
 		name, str1 string
 		number     int
@@ -18,14 +18,14 @@ func TestHighPrecisionDiv(t *testing.T) {
 
 	for _, v := range tests {
 		t.Run(v.name, func(t *testing.T) {
-			if q, r := highPrecisionDiv(v.str1, v.number); q != v.quotient || r != v.remainder {
+			if q, r := div(v.str1, v.number); q != v.quotient || r != v.remainder {
 				t.Fatal("结果: ", q, r, "期望值: ", v.quotient, v.remainder)
 			}
 		})
 	}
 }
 
-func highPrecisionDiv(s1 string, s2 int) (string, int) {
+func div(s1 string, s2 int) (string, int) {
 	t := 0
 	s3 := make([]int, len(s1))
 	for i := 0; i < len(s1); i++ {

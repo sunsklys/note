@@ -1,11 +1,11 @@
-package template
+package monotonous
 
 import (
 	"reflect"
 	"testing"
 )
 
-func TestMonotonousQueue(t *testing.T) {
+func TestQueue(t *testing.T) {
 	tests := []struct {
 		name string
 		arr  []int
@@ -17,14 +17,14 @@ func TestMonotonousQueue(t *testing.T) {
 
 	for _, v := range tests {
 		t.Run(v.name, func(t *testing.T) {
-			if r := monotonousQueue(v.arr, v.siz); !reflect.DeepEqual(r, v.want) {
+			if r := queue(v.arr, v.siz); !reflect.DeepEqual(r, v.want) {
 				t.Fatal("结果: ", r, "期望值: ", v.want)
 			}
 		})
 	}
 }
 
-func monotonousQueue(arr []int, size int) []int {
+func queue(arr []int, size int) []int {
 	var res = make([]int, 0)
 	var queue []int
 	for i := 0; i < len(arr); i++ {

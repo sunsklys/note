@@ -1,11 +1,11 @@
-package template
+package sort
 
 import (
 	"reflect"
 	"testing"
 )
 
-func TestSortQuick(t *testing.T) {
+func TestQuick(t *testing.T) {
 	tests := []struct {
 		name      string
 		arr, want []int
@@ -20,7 +20,7 @@ func TestSortQuick(t *testing.T) {
 
 	for _, v := range tests {
 		t.Run(v.name, func(t *testing.T) {
-			sortQuick(v.arr, 0, len(v.arr)-1)
+			quick(v.arr, 0, len(v.arr)-1)
 			if !reflect.DeepEqual(v.arr, v.want) {
 				t.Fatal("结果: ", v.arr, "期望值: ", v.want)
 			}
@@ -28,7 +28,7 @@ func TestSortQuick(t *testing.T) {
 	}
 }
 
-func sortQuick(s []int, l int, r int) {
+func quick(s []int, l int, r int) {
 	if l >= r {
 		return
 	}
@@ -54,6 +54,6 @@ func sortQuick(s []int, l int, r int) {
 		}
 	}
 
-	sortQuick(s, l, right)
-	sortQuick(s, right+1, r)
+	quick(s, l, right)
+	quick(s, right+1, r)
 }

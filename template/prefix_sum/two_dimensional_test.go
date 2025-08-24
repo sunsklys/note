@@ -1,10 +1,10 @@
-package template
+package prefix_sum
 
 import (
 	"testing"
 )
 
-func TestPrefixSumTwoDimensional(t *testing.T) {
+func TestTwoDimensional(t *testing.T) {
 	tests := []struct {
 		name                 string
 		arr                  [][]int
@@ -16,14 +16,14 @@ func TestPrefixSumTwoDimensional(t *testing.T) {
 
 	for _, v := range tests {
 		t.Run(v.name, func(t *testing.T) {
-			if r := prefixSumTwoDimensional(v.arr, v.x1, v.y1, v.x2, v.y2); r != v.want {
+			if r := twoDimensional(v.arr, v.x1, v.y1, v.x2, v.y2); r != v.want {
 				t.Fatal("结果: ", r, "期望值: ", v.want)
 			}
 		})
 	}
 }
 
-func prefixSumTwoDimensional(s [][]int, x1, y1, x2, y2 int) int {
+func twoDimensional(s [][]int, x1, y1, x2, y2 int) int {
 	x1 += 1
 	y1 += 1
 	x2 += 1
