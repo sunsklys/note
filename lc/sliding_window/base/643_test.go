@@ -1,4 +1,4 @@
-package sliding_window
+package base
 
 import "testing"
 
