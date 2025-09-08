@@ -1,6 +1,9 @@
 package base
 
-import "testing"
+import (
+	"math"
+	"testing"
+)
 
 func TestFindMaxAverage(t *testing.T) {
 	tests := []struct {
@@ -31,7 +34,7 @@ func TestFindMaxAverage(t *testing.T) {
 // https://leetcode.cn/problems/maximum-average-subarray-i/description/
 func findMaxAverage(nums []int, k int) float64 {
 	w := 0
-	result := float64(0)
+	result := float64(math.MinInt)
 	for i, v := range nums {
 		w += v
 		if i < k-1 {
