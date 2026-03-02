@@ -1,13 +1,14 @@
 package paradigm
 
 import (
+	"fmt"
 	"testing"
 )
 
 func TestPipeline(t *testing.T) {
 	var nums = []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	for n := range pipeline(nums, echo, odd, sq, sum) {
-		t.Log(n)
+		fmt.Println(n)
 	}
 }
 

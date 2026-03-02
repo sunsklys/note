@@ -1,6 +1,7 @@
 package paradigm
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -10,12 +11,12 @@ func TestMapReduce(t *testing.T) {
 	newList := MapStrToStr(list, func(s string) string {
 		return strings.ToUpper(s)
 	})
-	t.Log(newList)
+	fmt.Println(newList)
 
 	sum := Reduce(list, func(s string) int {
 		return len(s)
 	})
-	t.Log(sum)
+	fmt.Println(sum)
 }
 
 func MapStrToStr(arr []string, fn func(s string) string) []string {
