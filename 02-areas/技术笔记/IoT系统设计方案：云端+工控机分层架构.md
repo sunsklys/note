@@ -5,7 +5,6 @@
 
 ---
 
-IoT系统设计方案：云端+工控机分层架构  
 ## 一、核心设计原则
 
 一句话原则：云端管"交易"，工控机管"执行"，两者解耦，断网可运行。  
@@ -13,6 +12,7 @@ IoT系统设计方案：云端+工控机分层架构
 - 云端：商品/订单/支付/营销/数据，不依赖任何单台机器在线
 - 工控机：制作/取餐/硬件控制/本地状态，断网时独立运行
 - 通信：事件驱动，最终一致，消息队列兜底
+
 ## 二、职责划分总览
 
 
@@ -776,9 +776,11 @@ func (s *ReconcileService) Run(ctx context.Context) {
 | 故障影响 | 全局影响 | 单店影响 |
 
 核心原则：云端是"大脑"（决策、交易、数据），工控机是"小脑+四肢"（实时控制、反射动作、断网自治）。两者通过 MQTT 事件解耦，通过 Outbox + 本地 SQLite 保障最终一致性，通过对账任务兜底数据安全。  
+
 ## 十、设备影子（Device Shadow）
 
 这是 IoT 系统的标配，AWS IoT 和 Azure IoT 都内置。当前文档的"状态上报"是单向推送，生产级必须有双向影子同步。  
+
 ### 10.1 概念
 
 
@@ -899,6 +901,7 @@ func (e *Edge) syncShadow(ctx context.Context) {
 ## 十一、OTA 固件升级完整流程
 
 文档之前只提了"OTA固件升级"四个字，生产级必须有灰度、回滚、版本兼容。  
+
 ### 11.1 OTA 架构
 
 
@@ -1027,6 +1030,7 @@ func (s *OTAService) CanUpgrade(deviceID, targetVer string) error {
 ## 十二、可观测性具体方案
 
 文档之前只提了 Prometheus + Grafana 的名字，生产级需要完整的追踪、指标、日志、告警体系。  
+
 ### 12.1 三层可观测性
 
 
@@ -1187,6 +1191,7 @@ type EdgeMetrics struct {
 ## 十三、设备 Provisioning（设备入网）
 
 文档假设设备已有 device_id 和证书，生产级必须有自动化入网流程。  
+
 ### 13.1 设备生命周期
 
 
@@ -1293,6 +1298,7 @@ Step 2: 首次上电（门店安装后第一次开机）
 ## 十四、安全深度设计
 
 文档之前列了5层安全框架，但缺少证书轮换、密钥管理、审计日志的具体方案。  
+
 ### 14.1 密钥管理（KMS）
 
 
@@ -1414,6 +1420,7 @@ MQTT Broker (EMQX) 安全配置：
 ## 十五、灾备与多活
 
 文档之前没有灾备设计，生产级不能有单点故障。  
+
 ### 15.1 云端高可用架构
 
 
@@ -1571,9 +1578,11 @@ EMQX 集群（4节点，跨可用区）：
 | 版本管理 | ✅ 兼容矩阵 | ✅ | ✅ |
 
 补充后的文档已覆盖 IoT 零售系统完整的生产级最佳实践。  
+
 ## 十七、当前代码与设计文档差距分析
 
 本章基于对 hooloo 项目实际代码库的审计，对比设计文档（第一至十六章）与真实代码的差距。设计文档是架构愿景，代码是当前现实。  
+
 ### 17.1 差距清单
 
 #### 差距 1：MQTT Connect() 被注释（🔴 高）
@@ -1590,48 +1599,56 @@ EMQX 集群（4节点，跨可用区）：
 
 - 影响：MQTT 订阅客户端可能静默失败，消息无法接收
 - 建议：取消注释，增加指数退避重连策略，移除 panic 改为 error 返回
+
 #### 差距 2：硬编码 X.509 根证书（🟡 中）
 
 - 文件：common/pkg/mqtt/mqtt.go:40, 453
 - 现状：X509RootPem 证书内容直接硬编码在 Go 源码中
 - 影响：CA 证书过期后需要重新编译部署，无法热更新
 - 建议：移到外部文件（如 /etc/hooloo/certs/ca.pem），启动时读取
+
 #### 差距 3：SetOrderMatters 被注释（🟡 中）
 
 - 文件：common/pkg/mqtt/mqtt.go:432
 - 现状：MQTT v5 的 SetOrderMatters 被注释掉
 - 影响：消息可能乱序处理，导致状态机跳转异常
 - 建议：启用 SetOrderMatters(true)，或在业务层做版本号校验
+
 #### 差距 4：50 秒读取超时，无写入超时（🔴 高）
 
 - 文件：iot/hardware/embedded/huijin_v2_tcp.go:204
 - 现状：TCP 读取设置 50 秒超时，但写入操作（line 410 附近）没有设置超时
 - 影响：写入阻塞时 goroutine 永久挂起，导致 PLC 通信线程泄漏
 - 建议：写入也设置超时（3 秒），并用 context 传播取消信号
+
 #### 差距 5：缺少写入 ACK 验证（🟡 中）
 
 - 文件：iot/hardware/embedded/huijin_v2_tcp.go:242
 - 现状：代码中有 TODO 注释 "验证是否收到发送的指令"，但从未实现
 - 影响：PLC 指令发送后无法确认硬件是否执行成功
 - 建议：实现写入后的状态读取确认，增加重试机制
+
 #### 差距 6：PumpStateMap 无互斥锁（🔴 高）
 
 - 文件：iot/hardware/plc/interface.go:36
 - 现状：PumpStateMap 是普通 map[int]int，被多个 goroutine 并发读写
 - 影响：Go 运行时检测到并发 map 写入会 panic（fatal error: concurrent map writes）
 - 建议：改为 sync.Map 或用 sync.Mutex 保护
+
 #### 差距 7：SQLite 无 WAL 模式 + panic 崩溃（🟡 中）
 
 - 文件：common/drives/sqlite.go:42, 45
 - 现状：gorm.Open 使用空配置（无 WAL、无 busy_timeout），错误时 panic
 - 影响：断电时数据库可能损坏；panic 会导致工控机进入重启循环
 - 建议：开启 WAL 模式、设置 busy_timeout、错误返回而非 panic
+
 #### 差距 8：本地 MQTT Broker 无认证（🟡 中）
 
 - 文件：iot/hardware/mochi/mqtt_local_service.go:69
 - 现状：AllowHook 允许匿名连接，无任何认证
 - 影响：门店网络内任何设备都可以连接本地 MQTT Broker 发送伪造消息
 - 建议：添加 Token 或证书认证，或至少限制为 localhost 连接
+
 ### 17.2 差距优先级矩阵
 
 
@@ -1649,6 +1666,7 @@ EMQX 集群（4节点，跨可用区）：
 ## 十八、Go 生态参考项目附录
 
 本章基于 GitHub 深度调研，列出验证或改进本设计方案的开源 Go 项目。所有项目均经过交叉审查确认。  
+
 ### 18.1 核心依赖推荐
 
 
@@ -1698,6 +1716,7 @@ EMQX 集群（4节点，跨可用区）：
 ### 18.5 扩展参考项目（深度调研）
 
 以下项目通过 GitHub 代码搜索 + Web 搜索发现，均经过与 hooloo 架构的匹配度评估。按相关度排序。  
+
 #### 高度相关（强烈推荐研究）
 
 1. [fdi-iiot-gateway](https://github.com/sophie-nguyenthuthuy/fdi-iiot-gateway) — IIoT 边缘到云端遥测系统  
@@ -1743,6 +1762,7 @@ CNCF Landscape 项目 | 核心概念：DeviceShifu = 设备的数字孪生（K8s
 - 每个物理设备对应一个 K8s Pod，提供高层抽象 API
 - 协议无关、即插即用、CNCF 认可
 核心学习点：如果 hooloo 未来迁移到 K8s 部署，Shifu 的 DeviceShifu 模式可以让每个 PLC/咖啡机/制冰机变成一个 K8s CRD 资源。[官方文档](https://shifu.dev/)  
+
 #### 中度相关（值得学习特定模块）
 
 6. [maomao94/zero-service](https://github.com/maomao94/zero-service) — go-zero 工业微服务脚手架  
@@ -1765,6 +1785,7 @@ mochi-mqtt 的 fork，增加集群支持（Gossip + Raft）。如果需要在云
 MQTT 3.1.1/5.0 + AMQP 多协议 + 内嵌 etcd 集群 + gRPC。Magistrala 底层 Broker，跨协议 durable queues 模式。  
 15. [jaab-tech/fluxrig](https://github.com/jaab-tech/fluxrig) — 边缘到云端编排引擎  
 协议翻译 + 业务逻辑编排（ISO8583 / Modbus / MQTT / JSON）。架构：Mixer（控制面）+ Rack（边缘代理）+ Gear（处理模块）。边缘自治 + OpenTelemetry 原生，适合支付+IoT 混合场景。  
+
 #### 按用途分类速查
 
 
@@ -1784,6 +1805,7 @@ MQTT 3.1.1/5.0 + AMQP 多协议 + 内嵌 etcd 集群 + gRPC。Magistrala 底层 
 ## 附录：修订记录（Revision Notes）
 
 本节记录对文档已有章节（第一至十六章）的勘误和补充，保留原始内容以维护版本历史。经 4 人对抗性评审团队（ultrabrain / unspecified-high / unspecified-low / artistry）三轮交叉审查后确认。  
+
 ### 修订 R1：第 5.2 节 — MQTT Topic 设计修正
 
 #### R1.1 PII 暴露风险
@@ -1792,6 +1814,7 @@ MQTT 3.1.1/5.0 + AMQP 多协议 + 内嵌 etcd 集群 + gRPC。Magistrala 底层 
 - 问题：AWS IoT Core 明确规定 Topic 不得包含 PII（个人身份信息）；user/{userID} 暴露用户标识在 Topic 路径中
 - 修正：用户通知应使用 WebSocket/SSE 服务端推送，而非包含用户 ID 的 MQTT Topic
 - 替代方案：如需 MQTT 推送，使用设备维度 Topic（device/{deviceID}/notify），由设备端转发给用户
+
 #### R1.2 缺少 Shadow Topic
 
 - 问题：第十章添加了 Device Shadow 设计，但第 5.2 节的 Topic 列表未同步更新
@@ -1800,12 +1823,14 @@ MQTT 3.1.1/5.0 + AMQP 多协议 + 内嵌 etcd 集群 + gRPC。Magistrala 底层 
     - device/{deviceID}/shadow/reported — 设备上报实际状态
     - device/{deviceID}/shadow/get — 设备请求当前影子
     - device/{deviceID}/shadow/get/accepted — 云端返回影子内容
+
 #### R1.3 缺少共享订阅前缀
 
 - 问题：IPC 集群场景下多个工控机需要负载均衡消费订单
 - 补充：增加共享订阅 Topic
     - $share/<group>/store/{storeID}/order/new — 同组工控机竞争消费
     - $share/<group>/store/{storeID}/command/restart — 运维指令负载均衡
+
 ### 修订 R2：第十四章 — X.509 证书轮换补充
 
 #### R2.1 当前方案评估
@@ -1813,6 +1838,7 @@ MQTT 3.1.1/5.0 + AMQP 多协议 + 内嵌 etcd 集群 + gRPC。Magistrala 底层 
 - 当前文档：证书有效期 1 年，到期前 30 天自动轮换
 - 评估结论：对 ~50 台设备的封闭车队，1 年有效期 + 手动轮换是可接受的
 - 补充建议：增加 CRL（证书吊销列表）或短证书隐式吊销机制，用于设备被盗/密钥泄露场景
+
 #### R2.2 扩展建议（非当前优先级）
 
 - 当车队规模超过 500 台时，考虑引入：
@@ -1821,6 +1847,7 @@ MQTT 3.1.1/5.0 + AMQP 多协议 + 内嵌 etcd 集群 + gRPC。Magistrala 底层 
     - TPM / Secure Element 硬件密钥存储
     - IDevID（工厂身份）→ LDevID（运行身份）分层模型
 - 当前规模无需引入这些复杂度
+
 ### 修订 R3：误报排除记录
 
 以下问题在初轮审查中被提出，经交叉审查后确认为误报，特此记录以避免重复。  
